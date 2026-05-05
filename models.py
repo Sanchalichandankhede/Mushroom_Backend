@@ -23,10 +23,12 @@ class OrderStatus(str, enum.Enum):
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
+    # Changed to String/UUID to match Supabase Auth ID
+    id = Column(String(100), primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     email = Column(String(150), unique=True, index=True, nullable=False)
-    hashed_password = Column(String(255), nullable=False)
+    # password is not needed if using Supabase Auth, but we can keep it for flexibility
+    hashed_password = Column(String(255), nullable=True) 
     profile_image = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True)
     is_seller = Column(Boolean, default=False)
@@ -62,7 +64,7 @@ class IdentificationLog(Base):
     __tablename__ = "identification_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    user_id = Column(String(100), ForeignKey("users.id"), nullable=True)
     mushroom_id = Column(Integer, ForeignKey("mushrooms.id"), nullable=True)
     uploaded_image_path = Column(String(500), nullable=False)
     confidence_score = Column(Float, nullable=True)
@@ -79,7 +81,7 @@ class MushroomListing(Base):
     __tablename__ = "mushroom_listings"
 
     id = Column(Integer, primary_key=True, index=True)
-    seller_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    seller_id = Column(String(100), ForeignKey("users.id"), nullable=False)
     mushroom_id = Column(Integer, ForeignKey("mushrooms.id"), nullable=False)
     title = Column(String(200), nullable=False)
     description = Column(Text, nullable=True)
@@ -101,7 +103,7 @@ class CartItem(Base):
     __tablename__ = "cart_items"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(String(100), ForeignKey("users.id"), nullable=False)
     listing_id = Column(Integer, ForeignKey("mushroom_listings.id"), nullable=False)
     quantity_kg = Column(Float, nullable=False, default=1.0)
     added_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -114,7 +116,7 @@ class Order(Base):
     __tablename__ = "orders"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(String(100), ForeignKey("users.id"), nullable=False)
     total_amount = Column(Float, nullable=False)
     status = Column(Enum(OrderStatus), default=OrderStatus.pending)
     delivery_address = Column(Text, nullable=False)

@@ -19,7 +19,7 @@ class UserLogin(BaseModel):
 
 
 class UserOut(BaseModel):
-    id: int
+    id: str
     name: str
     email: str
     is_seller: bool

@@ -1,15 +1,19 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 import os
+from dotenv import load_dotenv
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./mushroom_project.db")
-# For PostgreSQL in production:
-# DATABASE_URL = "postgresql://user:password@localhost/mushroomdb"
+# Load environment variables from .env file
+load_dotenv()
 
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Supabase requires a slightly different connection string format for some libraries
+# If it starts with postgres:// we might need to change it to postgresql://
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
