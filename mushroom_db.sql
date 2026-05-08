@@ -100,6 +100,16 @@ CREATE TABLE IF NOT EXISTS public.order_items (
     price_at_purchase FLOAT NOT NULL
 );
 
+-- Notifications
+CREATE TABLE IF NOT EXISTS public.notifications (
+    id SERIAL PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- 3. ENABLE ROW LEVEL SECURITY (RLS)
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.mushrooms ENABLE ROW LEVEL SECURITY;
@@ -132,6 +142,38 @@ CREATE POLICY "Users can manage their own cart" ON public.cart_items FOR ALL USI
 -- Orders: Owner can view their orders, Sellers can view orders for their listings
 CREATE POLICY "Users can view their own orders" ON public.orders FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert their own orders" ON public.orders FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Notifications: Only owner can manage
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage their own notifications" ON public.notifications FOR ALL USING (auth.uid() = user_id);
+-- Articles Table
+CREATE TABLE IF NOT EXISTS public.articles (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    image_url TEXT,
+    author TEXT DEFAULT 'Mushroom Expert',
+    category TEXT DEFAULT 'General',
+    is_trending BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Quick Facts Table
+CREATE TABLE IF NOT EXISTS public.quick_facts (
+    id SERIAL PRIMARY KEY,
+    fact TEXT NOT NULL,
+    icon TEXT DEFAULT 'Zap',
+    color_hex TEXT DEFAULT '#FFD700',
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE public.articles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.quick_facts ENABLE ROW LEVEL SECURITY;
+
+-- Policies (Allow public to read)
+CREATE POLICY "Allow public read access for articles" ON public.articles FOR SELECT USING (true);
+CREATE POLICY "Allow public read access for quick_facts" ON public.quick_facts FOR SELECT USING (true);
 
 -- 5. AUTH SYNC TRIGGER
 -- This function automatically creates a public user entry when a new auth user is created

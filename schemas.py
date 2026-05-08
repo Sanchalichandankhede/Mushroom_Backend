@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from datetime import datetime
+from uuid import UUID
 from models import MushroomCategory, OrderStatus
 
 
@@ -19,7 +20,7 @@ class UserLogin(BaseModel):
 
 
 class UserOut(BaseModel):
-    id: str
+    id: UUID | str
     name: str
     email: str
     is_seller: bool
@@ -156,6 +157,45 @@ class OrderOut(BaseModel):
     notes: Optional[str]
     created_at: datetime
     items: List[OrderItemOut]
+
+    class Config:
+        from_attributes = True
+
+
+# ─── Notification Schemas ────────────────────────────────────────────────────
+
+class NotificationOut(BaseModel):
+    id: int
+    title: str
+    message: str
+    is_read: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# ─── Home Page Content Schemas ───────────────────────────────────────────────
+
+class ArticleOut(BaseModel):
+    id: int
+    title: str
+    content: str
+    image_url: Optional[str]
+    author: str
+    category: str
+    is_trending: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class QuickFactOut(BaseModel):
+    id: int
+    fact: str
+    icon: str
+    color_hex: str
 
     class Config:
         from_attributes = True

@@ -66,6 +66,21 @@ def update_mushroom(
     return mushroom
 
 
+@router.get("/listings/me", response_model=List[schemas.ListingOut])
+def list_my_listings(
+    skip: int = 0,
+    limit: int = 20,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """
+    Get all listings created by the currently authenticated user.
+    """
+    return db.query(models.MushroomListing).filter(
+        models.MushroomListing.seller_id == current_user.id
+    ).offset(skip).limit(limit).all()
+
+
 @router.delete("/{mushroom_id}", status_code=204)
 def delete_mushroom(
     mushroom_id: int,

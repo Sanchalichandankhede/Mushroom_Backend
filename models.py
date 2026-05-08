@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, Text, Enum
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
@@ -24,11 +25,10 @@ class User(Base):
     __tablename__ = "users"
 
     # Changed to String/UUID to match Supabase Auth ID
-    id = Column(String(100), primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     email = Column(String(150), unique=True, index=True, nullable=False)
-    # password is not needed if using Supabase Auth, but we can keep it for flexibility
-    hashed_password = Column(String(255), nullable=True) 
+    # password is not needed if using Supabase Auth
     profile_image = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True)
     is_seller = Column(Boolean, default=False)
@@ -140,3 +140,40 @@ class OrderItem(Base):
 
     order = relationship("Order", back_populates="items")
     listing = relationship("MushroomListing", back_populates="order_items")
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    title = Column(String(200), nullable=False)
+    message = Column(Text, nullable=False)
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User")
+    user = relationship("User")
+
+
+class Article(Base):
+    __tablename__ = "articles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(255), nullable=False)
+    content = Column(Text, nullable=False)
+    image_url = Column(String(255), nullable=True)
+    author = Column(String(100), default="Mushroom Expert")
+    category = Column(String(50), default="General")
+    is_trending = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class QuickFact(Base):
+    __tablename__ = "quick_facts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    fact = Column(String(500), nullable=False)
+    icon = Column(String(50), default="Zap")
+    color_hex = Column(String(10), default="#FFD700")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

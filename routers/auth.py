@@ -32,3 +32,16 @@ def update_profile(
     db.commit()
     db.refresh(current_user)
     return current_user
+
+
+@router.delete("/me", status_code=204)
+def delete_account(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """
+    Permanently delete the user's account and all associated data.
+    """
+    db.delete(current_user)
+    db.commit()
+    return None

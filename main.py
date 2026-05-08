@@ -5,7 +5,7 @@ import uvicorn
 from contextlib import asynccontextmanager
 from database import engine, Base
 import models
-from routers import auth, mushrooms, identification, cart, orders
+from routers import auth, mushrooms, identification, cart, orders, notifications, home
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,6 +37,8 @@ app.include_router(mushrooms.router, prefix="/api/mushrooms", tags=["Mushrooms"]
 app.include_router(identification.router, prefix="/api/identify", tags=["Identification"])
 app.include_router(cart.router, prefix="/api/cart", tags=["Cart"])
 app.include_router(orders.router, prefix="/api/orders", tags=["Orders"])
+app.include_router(notifications.router, prefix="/api/notifications", tags=["Notifications"])
+app.include_router(home.router, prefix="/api/home", tags=["Home Content"])
 
 
 @app.get("/")
