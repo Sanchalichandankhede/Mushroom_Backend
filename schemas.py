@@ -199,3 +199,18 @@ class QuickFactOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ─── Chat Schemas ────────────────────────────────────────────────────────────
+
+class ChatMessage(BaseModel):
+    role: str # 'user' or 'model'
+    text: str
+
+class ChatRequest(BaseModel):
+    message: str
+    history: Optional[List[ChatMessage]] = None
+
+class ChatResponse(BaseModel):
+    response: str
+    timestamp: datetime = Field(default_factory=datetime.now)
