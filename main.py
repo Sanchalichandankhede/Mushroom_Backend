@@ -1,3 +1,10 @@
+import os
+import sys
+
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -6,6 +13,13 @@ from contextlib import asynccontextmanager
 from database import engine, Base
 import models
 from routers import auth, mushrooms, identification, cart, orders, notifications, home, chat
+
+if hasattr(sys, 'base_prefix') and sys.prefix == sys.base_prefix:
+    print(
+        "WARNING: You are not running inside a virtual environment. "
+        "Use .venv\\Scripts\\activate (Windows) or .venv/bin/activate (macOS/Linux), "
+        "or run .venv\\Scripts\\python.exe main.py."
+    )
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

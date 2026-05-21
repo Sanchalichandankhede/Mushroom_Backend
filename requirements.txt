@@ -6,14 +6,13 @@ passlib[bcrypt]==1.7.4
 python-multipart==0.0.12
 pydantic[email]==2.9.2
 alembic==1.13.3
-psycopg2-binary==2.9.9
+# psycopg2-binary is optional; only install if you need PostgreSQL support.
+# pip install psycopg2-binary
 python-dotenv==1.0.1
 cloudinary==1.41.0
 google-genai==0.6.0
+httpx==0.28.1
 
-# Optional: for real ML model inference
-# tensorflow==2.17.0
-# torch==2.4.1
-# torchvision==0.19.1
-# Pillow==10.4.0
-# transformers==4.44.2
+# ML model inference
+tensorflow
+Pillow

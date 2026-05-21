@@ -13,12 +13,11 @@ load_dotenv()
 
 router = APIRouter()
 
-# Initialize Gemini Client
+# Initialize Gemini Client lazily.
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise RuntimeError("GEMINI_API_KEY not found in environment variables")
-
-client = genai.Client(api_key=GEMINI_API_KEY)
+client = None
+if GEMINI_API_KEY:
+    client = genai.Client(api_key=GEMINI_API_KEY)
 
 SYSTEM_INSTRUCTION = (
     "You are a Mushroom Expert AI assistant for the 'Mycelial Layer' app. "
@@ -26,7 +25,10 @@ SYSTEM_INSTRUCTION = (
     "warning about toxic fungi, and offering general mycological advice. "
     "Always prioritize safety and explicitly warn users NEVER to consume mushrooms they cannot positively identify. "
     "Keep your tone professional, helpful, and premium. "
-    "If a user asks about something unrelated to mushrooms, fungi, or nature, politely redirect them back to the application's focus."
+    "If a user asks about something unrelated to mushrooms, fungi, or nature, politely redirect them back to the application's focus.\n\n"
+    "CRITICAL FORMATTING RULES:\n"
+    "1. Do NOT use any Markdown formatting. NEVER use asterisks (*), double asterisks (**), hashtags (#, ##, ###), or markdown lines (---) in your output. Provide response only in clean, plain text.\n"
+    "2. Keep all responses very short, concise, and direct. Limit responses to at most 1-2 small paragraphs or a few brief, clean bullet points. Avoid lengthy explanations."
 )
 
 @router.post("/", response_model=schemas.ChatResponse)
@@ -44,9 +46,22 @@ async def chat_with_expert(
                 else:
                     history.append(types.Content(role="model", parts=[types.Part(text=msg.text)]))
 
+        # Ensure the AI service is configured before attempting the request
+        global client
+        if client is None:
+            gemini_key = os.getenv("GEMINI_API_KEY")
+            if gemini_key:
+                client = genai.Client(api_key=gemini_key)
+
+        if client is None:
+            raise HTTPException(
+                status_code=503,
+                detail="GEMINI_API_KEY is not configured. Set GEMINI_API_KEY in your environment to use the chat endpoint."
+            )
+
         # Create chat session with system instruction
         chat = client.chats.create(
-            model="gemini-2.0-flash",
+            model="gemini-3.5-flash",
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_INSTRUCTION,
                 temperature=0.7,

@@ -3,6 +3,7 @@
 A FastAPI backend for a mushroom identification and marketplace app.
 
 ## Features
+
 - **Authentication** — JWT-based register/login
 - **Mushroom Encyclopedia** — Browse, search, filter mushrooms by category
 - **AI Identification** — Upload a photo → get mushroom prediction + safety info
@@ -35,16 +36,30 @@ mushroom_backend/
 
 ```bash
 # 1. Create virtual environment
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+python -m venv .venv
 
-# 2. Install dependencies
-pip install -r requirements.txt
+# 2. Activate the virtual environment
+# Windows PowerShell:
+.venv\Scripts\Activate.ps1
+# Windows CMD:
+.venv\Scripts\activate.bat
+# macOS/Linux:
+source .venv/bin/activate
 
-# 3. Run the server
+# 3. Install dependencies
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+
+# 4. Run the server
 python main.py
 # OR
 uvicorn main:app --reload
+
+# Alternative startup
+# Windows PowerShell:
+./run.ps1
+# Windows CMD:
+run.bat
 ```
 
 API docs available at: **http://localhost:8000/docs**
@@ -53,52 +68,59 @@ API docs available at: **http://localhost:8000/docs**
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DATABASE_URL` | `sqlite:///./mushroom_project.db` | Database connection string |
-| `SECRET_KEY` | `mushroom-super-secret-key-change-in-production` | JWT signing secret |
+| Variable       | Default                                          | Description                                               |
+| -------------- | ------------------------------------------------ | --------------------------------------------------------- |
+| `DATABASE_URL` | `sqlite:///./mushroom_project.db`                | Database connection string. Leave blank for local SQLite. |
+| `SECRET_KEY`   | `mushroom-super-secret-key-change-in-production` | JWT signing secret                                        |
+
+> If you need PostgreSQL, install `psycopg2-binary` separately and set `DATABASE_URL`.
 
 ---
 
 ## API Endpoints
 
 ### Auth
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register` | Register new user |
-| POST | `/api/auth/login` | Login and get JWT |
-| GET | `/api/auth/me` | Get current user profile |
+
+| Method | Endpoint             | Description              |
+| ------ | -------------------- | ------------------------ |
+| POST   | `/api/auth/register` | Register new user        |
+| POST   | `/api/auth/login`    | Login and get JWT        |
+| GET    | `/api/auth/me`       | Get current user profile |
 
 ### Mushrooms
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/mushrooms/` | List all mushrooms (filter by category/search) |
-| GET | `/api/mushrooms/{id}` | Get mushroom detail |
-| POST | `/api/mushrooms/` | Add mushroom (authenticated) |
-| GET | `/api/mushrooms/listings/all` | Browse marketplace listings |
-| POST | `/api/mushrooms/listings/` | Create a listing (seller) |
+
+| Method | Endpoint                      | Description                                    |
+| ------ | ----------------------------- | ---------------------------------------------- |
+| GET    | `/api/mushrooms/`             | List all mushrooms (filter by category/search) |
+| GET    | `/api/mushrooms/{id}`         | Get mushroom detail                            |
+| POST   | `/api/mushrooms/`             | Add mushroom (authenticated)                   |
+| GET    | `/api/mushrooms/listings/all` | Browse marketplace listings                    |
+| POST   | `/api/mushrooms/listings/`    | Create a listing (seller)                      |
 
 ### Identification
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/identify/upload` | Upload image → get prediction |
-| GET | `/api/identify/history` | View your past identifications |
+
+| Method | Endpoint                | Description                    |
+| ------ | ----------------------- | ------------------------------ |
+| POST   | `/api/identify/upload`  | Upload image → get prediction  |
+| GET    | `/api/identify/history` | View your past identifications |
 
 ### Cart
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/cart/` | View cart with total |
-| POST | `/api/cart/add` | Add item to cart |
-| PUT | `/api/cart/{id}` | Update quantity |
-| DELETE | `/api/cart/{id}` | Remove item |
+
+| Method | Endpoint         | Description          |
+| ------ | ---------------- | -------------------- |
+| GET    | `/api/cart/`     | View cart with total |
+| POST   | `/api/cart/add`  | Add item to cart     |
+| PUT    | `/api/cart/{id}` | Update quantity      |
+| DELETE | `/api/cart/{id}` | Remove item          |
 
 ### Orders
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/orders/place` | Place order from cart |
-| GET | `/api/orders/` | View my orders |
-| GET | `/api/orders/{id}` | Order detail |
-| PUT | `/api/orders/{id}/cancel` | Cancel pending order |
+
+| Method | Endpoint                  | Description           |
+| ------ | ------------------------- | --------------------- |
+| POST   | `/api/orders/place`       | Place order from cart |
+| GET    | `/api/orders/`            | View my orders        |
+| GET    | `/api/orders/{id}`        | Order detail          |
+| PUT    | `/api/orders/{id}/cancel` | Cancel pending order  |
 
 ---
 
@@ -128,6 +150,7 @@ def mock_ml_predict(image_path: str) -> dict:
 ---
 
 ## Production Checklist
+
 - [ ] Change `SECRET_KEY` to a secure random value
 - [ ] Switch `DATABASE_URL` to PostgreSQL
 - [ ] Set `allow_origins` in CORS to your frontend URL only

@@ -74,6 +74,11 @@ class IdentificationResult(BaseModel):
     description: Optional[str]
     warnings: Optional[str]
     log_id: int
+    image_url: Optional[str] = None
+    toxicity_status: Optional[str] = None
+    toxicity_details: Optional[str] = None
+    health_metrics: Optional[str] = None
+    recipes: Optional[List[str]] = None
 
 
 # ─── Listing Schemas ─────────────────────────────────────────────────────────
